@@ -1,73 +1,25 @@
-import requests
-import re
-from datetime import datetime
-import os
+name: Monitor Valencia-Barça
 
-URL = "https://www.valenciacf.com/entradas"
+on:
+  workflow_dispatch:
 
-DISCORD_WEBHOOK = os.environ.get("DISCORD_WEBHOOK", "")
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
 
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@v5
 
-def avisar(mensaje):
-    if not DISCORD_WEBHOOK:
-        print("❌ DISCORD_WEBHOOK NO ESTÁ CONFIGURADO")
-        return
+      - name: Instalar Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
 
-    print("✅ DISCORD_WEBHOOK está configurado")
+      - name: Instalar dependencias
+        run: pip install requests
 
-    respuesta = requests.post(
-        DISCORD_WEBHOOK,
-        json={"content": mensaje},
-        timeout=15
-    )
-
-    print(f"Discord respondió con código: {respuesta.status_code}")
-
-
-def comprobar():
-    respuesta = requests.get(
-        URL,
-        headers={"User-Agent": "Mozilla/5.0"},
-        timeout=20
-    )
-
-    texto = re.sub(r"\s+", " ", respuesta.text.lower())
-
-    agotado = any(x in texto for x in [
-        "agotado",
-        "sin entradas",
-        "no hay entradas",
-        "no disponible"
-    ])
-
-    disponible = any(x in texto for x in [
-        "comprar",
-        "entradas disponibles",
-        "seleccionar asiento"
-    ])
-
-    return disponible and not agotado
-
-
-if __name__ == "__main__":
-    ahora = datetime.now().strftime("%d/%m/%Y %H:%M")
-
-    avisar(
-        "🔔 PRUEBA: el monitor de Valencia-Barça "
-        "está conectado correctamente a Discord."
-    )
-
-    try:
-        if comprobar():
-            avisar(
-                f"🚨 POSIBLES ENTRADAS DISPONIBLES\n"
-                f"Valencia CF vs Barça\n"
-                f"Comprobado: {ahora}\n"
-                f"{URL}"
-            )
-            print("¡Posible disponibilidad!")
-        else:
-            print(f"[{ahora}] No se han detectado entradas.")
-
-    except Exception as e:
-        print(f"Error: {e}")
+      - name: Comprobar entradas
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        run: python monitor.py
