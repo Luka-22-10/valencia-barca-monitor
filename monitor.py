@@ -50,7 +50,9 @@ def comprobar():
 if __name__ == "__main__":
     ahora = datetime.now().strftime("%d/%m/%Y %H:%M")
     
-    try:
+        avisar("🔔 PRUEBA: el monitor de Valencia-Barça está conectado correctamente a Discord.")
+
+   try:
         if comprobar():
             avisar(
                 f"🚨 POSIBLES ENTRADAS DISPONIBLES\n"
