@@ -4,8 +4,8 @@ from datetime import datetime
 
 URL = "https://www.valenciacf.com/entradas"
 
-# Cambia esto por la URL de tu webhook de Discord
 DISCORD_WEBHOOK = ""
+
 
 def avisar(mensaje):
     if not DISCORD_WEBHOOK:
@@ -17,6 +17,7 @@ def avisar(mensaje):
         json={"content": mensaje},
         timeout=15
     )
+
 
 def comprobar():
     respuesta = requests.get(
@@ -47,12 +48,13 @@ def comprobar():
 
     return False
 
+
 if __name__ == "__main__":
     ahora = datetime.now().strftime("%d/%m/%Y %H:%M")
-    
-        avisar("🔔 PRUEBA: el monitor de Valencia-Barça está conectado correctamente a Discord.")
 
-   try:
+    avisar("🔔 PRUEBA: el monitor de Valencia-Barça está conectado correctamente a Discord.")
+
+    try:
         if comprobar():
             avisar(
                 f"🚨 POSIBLES ENTRADAS DISPONIBLES\n"
@@ -60,8 +62,11 @@ if __name__ == "__main__":
                 f"Comprobado: {ahora}\n"
                 f"{URL}"
             )
+
             print("¡Posible disponibilidad!")
+
         else:
             print(f"[{ahora}] No se han detectado entradas.")
+
     except Exception as e:
         print(f"Error: {e}")
